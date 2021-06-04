@@ -1,0 +1,6 @@
+
+000016da -     12 facets -      8 vertices - model
+
+
+000016da -     12 facets =      8 vertices - material Normal.floor
+

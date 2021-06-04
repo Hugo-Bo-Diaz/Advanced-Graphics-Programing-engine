@@ -1,0 +1,13 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+newmtl Normal.floor
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.480169 0.394783 0.277712
+Ks 0.200000 0.200000 0.200000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd StoneFloorDiffuse.png
+map_Ks StoneFloorSpecular.png
+map_Kn StoneFloorNormals.png
