@@ -83,6 +83,7 @@ in vec3 vViewDir;
 uniform sampler2D uTexture;
 uniform sampler2D uNormalMap;
 uniform sampler2D uDepthMap;
+uniform sampler2D uSpecularMap;
 
 uniform float specular;
 
@@ -106,6 +107,7 @@ layout(binding = 3, std140) uniform LightParamsSecond
 
 float depthmodifier = 0.0;
 uniform float depthStrength;
+uniform float normalStrength;
 vec3 newpos;
 
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
@@ -179,6 +181,7 @@ in Data{
 
 uniform int normalMapExists;
 uniform int depthMapExists;
+uniform int specularMapExists;
 
 uniform mat4 cameraProj;
 
@@ -211,7 +214,12 @@ void main()
 		newtexCoords = vTexCoord;
 	}	
 
-	vec3 tangentSpaceNormal = texture(uNormalMap, newtexCoords).xyz * 2.0 - vec3(1.0);
+	//vec3 tangentSpaceNormal = texture(uNormalMap, newtexCoords).xyz * 2.0 - vec3(1.0);
+
+	vec3 tangentSpaceNormal = texture(uNormalMap,newtexCoords).xyz;
+	tangentSpaceNormal = tangentSpaceNormal * 2.0 - 1.0;
+	tangentSpaceNormal.xy *= normalStrength;
+
 	vec3 localSpaceNormal = TBN*tangentSpaceNormal;
 	vec3 viewSpaceNormal = normalize(uWorldViewProjectionMatrix* vec4(localSpaceNormal,0.0)).xyz;
 	
@@ -228,7 +236,15 @@ void main()
 	oNormals = vec4(norm,1.0f);
 	oSpecular = vec4(vec3(specular),1.0f);
 
-
+	float realspecular =0.0;
+	if(specularMapExists == 1)
+	{
+		realspecular = texture(uSpecularMap,newtexCoords).r;
+	}
+	else
+	{
+		realspecular = specular;
+	}
 
 	vec3 color = vec3(0.0);
 	
@@ -262,7 +278,7 @@ void main()
 		// specular
 		vec3 halfwayDir = normalize(lightDir + viewDir);  
 		float spec = pow(max(dot(norm, halfwayDir), 0.0), 16.0);
-		vec3 specular = uLight[i].color * spec * specular;
+		vec3 specular = uLight[i].color * spec * realspecular;
 		// attenuation
 		float attenuation = 1.0;
 

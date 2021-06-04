@@ -93,6 +93,7 @@ struct Material
 	bool hasbump = false;
 
 	float bumpStrength = 0.05f;
+	float normalsStrength = 1.0f;
 
 	f32 specular;
 };

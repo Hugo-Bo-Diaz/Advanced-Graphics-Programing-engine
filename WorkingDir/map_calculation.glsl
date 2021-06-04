@@ -65,10 +65,12 @@ in vec3 vNormal;
 uniform sampler2D uTexture;
 uniform sampler2D uNormalMap;
 uniform sampler2D uDepthMap;
+uniform sampler2D uSpecularMap;
 
 uniform float specular;
 uniform int normalMapExists;
 uniform int depthMapExists;
+uniform int specularMapExists;
 
 uniform float depthStrength;
 
@@ -189,12 +191,11 @@ void main()
 	//oColor = vec4(1.0f,1.0f,1.0f,1.0f);
 
 
-	vec3 norm = normalize(vNormal);
+	vec3 norm = vec3(0.0);
 	if(normalMapExists == 1)
-	{
-	norm = normalize(viewSpaceNormal);
-	}
-
+		norm = normalize(viewSpaceNormal);
+	else
+		norm = normalize(vNormal);
 
 	vec4 v_clip_coord = uWorldViewProjectionMatrix * vec4(aPos-newpos, 1.0);
 	float f_ndc_depth = v_clip_coord.z / v_clip_coord.w;
@@ -202,7 +203,18 @@ void main()
 
 	oPosition = vec4(vPosition+newpos,1.0f);
 	oNormals = vec4(norm,1.0f);
-	oSpecular = vec4(vec3(specular),1.0f);
+
+	float realspecular = 0.0;
+	if(specularMapExists == 1)
+	{
+		realspecular = texture(uSpecularMap,newtexCoords).r;
+	}
+	else
+	{
+		realspecular = specular;
+	}
+
+	oSpecular = vec4(vec3(realspecular),1.0f);
 }
 
 #endif

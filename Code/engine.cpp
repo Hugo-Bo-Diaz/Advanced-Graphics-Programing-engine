@@ -286,23 +286,23 @@ void Init(App* app)
 
 	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &app->maxUniformBufferSize);
 	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &app->uniformBlockAlignment);
-
+	/*
 	int pat1 = LoadModel(app, "Patrick/Patrick.obj");
 	//app->models[pat1].world = TransformPosition(glm::vec3(2, 0,-1))*TransformScale(glm::vec3(0.45));
 	ChangePos(&app->models[pat1], 2, 0, -1);
 	ChangeScl(&app->models[pat1], 0.45, 0.45, 0.45);
 	ChangeRot(&app->models[pat1], 0, -90, 0);
-	RecalculateMatrix(&app->models[pat1]);
-
+	RecalculateMatrix(&app->models[pat1]);*/
+	
 	int pat2 = LoadModel(app, "Patrick/Patrick.obj");
 	ChangePos(&app->models[pat2], -1, 0, 2);
 	ChangeScl(&app->models[pat2], 0.45, 0.45, 0.45);
 	ChangeRot(&app->models[pat2], 0, -90, 0);
 	RecalculateMatrix(&app->models[pat2]);
 
-	//int floor = LoadModel(app, "StoneFloor/StoneFloor.obj");
-	//ChangeScl(&app->models[floor],0.5, 0.5, 0.5);
-	//RecalculateMatrix(&app->models[floor]);
+	/*int floor = LoadModel(app, "StoneFloor/StoneFloor.obj");
+	ChangeScl(&app->models[floor],0.5, 0.5, 0.5);
+	RecalculateMatrix(&app->models[floor]);*/
 
 	int toy = LoadModel(app, "TOYBOX/ToyBox.obj");
 	ChangePos(&app->models[toy], 0, 1, 0);
@@ -481,15 +481,6 @@ void Gui(App* app)
 		app->rendermode = RenderMode_Forward;
 	}
 
-	if (ImGui::Button("Reflection"))
-	{
-		app->mode = Mode_ReflectionWater;
-	}
-	if (ImGui::Button("Refraction"))
-	{
-		app->mode = Mode_RefractionWater;
-	}
-
 	if (ImGui::Button("Deferred"))
 	{
 		app->mode = Mode_Deferred;
@@ -562,12 +553,6 @@ void Gui(App* app)
 		break;
 	case Mode_FinalRender:
 		buffer_to_render = app->finalAttachmentHandle;
-		break;
-	case Mode_ReflectionWater:
-		buffer_to_render = app->depthAttachmentHandle;
-		break;
-	case Mode_RefractionWater:
-		buffer_to_render = app->refractionAttachmentHandle;
 		break;
 	default:
 		break;
@@ -660,13 +645,12 @@ void ModelWindowGUI(App * app)
 			}
 
 			//show submeshes
-			std::string d = "submeshes" + std::to_string(i);
+			std::string d = "submeshes";// + std::to_string(i)
 			if(ImGui::TreeNode(d.c_str()))
 			{
 				for (u32 j = 0; j < mesh.submeshes.size(); ++j)
 				{
 					ImGui::PushID(j);
-
 
 					//Imgui collapsing header  with name :)
 					ImGui::Text(mesh.submeshes[j].name.c_str());
@@ -674,36 +658,48 @@ void ModelWindowGUI(App * app)
 					int imagessize = 150;
 					ImVec2 cach = ImVec2(imagessize, imagessize);
 
-					if (ImGui::TreeNode(d.c_str()))
+					if (ImGui::TreeNode("Materials"))
 					{
-						
+						ImGui::PushID(mesh.submeshes[j].name.c_str());
+
 						u32 submeshMaterialIdx = model.materialIdx[j];
 						Material& submeshMaterial = app->materials[submeshMaterialIdx];
 
 						if (submeshMaterial.hasalbedo)
 						{
+
 							ImGui::Text("Albedo");
 							ImGui::Image((void*)app->textures[submeshMaterial.albedoTextureIdx].handle, cach, ImVec2(0, 1), ImVec2(1, 0));
+						
 						}
 
 						if (submeshMaterial.hasbump)
 						{
+							ImGui::PushID("bmp");
+
 							ImGui::Text("Height");
 							ImGui::DragFloat("strength", &submeshMaterial.bumpStrength, 0.005, 0.0, 0.05);
 							ImGui::Image((void*)app->textures[submeshMaterial.bumpTextureIdx].handle, cach, ImVec2(0, 1), ImVec2(1, 0));
+							ImGui::PopID();
+
 						}
 
 						if (submeshMaterial.hasnormals)
 						{
-							ImGui::Text("normals");
+							ImGui::PushID("nrm");
+							ImGui::Text("Normals");
+							ImGui::DragFloat("strength", &submeshMaterial.normalsStrength, 0.005, 0.0, 1.0);
 							ImGui::Image((void*)app->textures[submeshMaterial.normalsTextureIdx].handle, cach, ImVec2(0, 1), ImVec2(1, 0));
+							ImGui::PopID();
+
 						}
 
 						if (submeshMaterial.hasspecular)
 						{
-							ImGui::Text("Height");
+							ImGui::Text("Specular");
 							ImGui::Image((void*)app->textures[submeshMaterial.specularTextureIdx].handle, cach, ImVec2(0, 1), ImVec2(1, 0));
 						}
+						ImGui::PopID();
 
 						ImGui::TreePop();
 					}
@@ -1325,6 +1321,9 @@ void Render(App* app)
 					GLint loc = glGetUniformLocation(forwardRenderProgram.handle, "normalMapExists");
 					glUniform1i(loc, 1);
 					
+					GLint loc1 = glGetUniformLocation(forwardRenderProgram.handle, "normalStrength");
+					glUniform1f(loc1, submeshMaterial.normalsStrength);
+
 					glActiveTexture(GL_TEXTURE1);
 					GLint locnormals = glGetUniformLocation(forwardRenderProgram.handle, "uNormalMap");
 					glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.normalsTextureIdx].handle);
@@ -1349,6 +1348,23 @@ void Render(App* app)
 					glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.bumpTextureIdx].handle);
 					glUniform1i(locdepth, 2);
 				}
+
+				if (submeshMaterial.specularTextureIdx == 0)
+				{
+					GLint loc = glGetUniformLocation(forwardRenderProgram.handle, "specularMapExists");
+					glUniform1i(loc, 0);
+				}
+				else
+				{
+					GLint loc = glGetUniformLocation(forwardRenderProgram.handle, "specularMapExists");
+					glUniform1i(loc, 1);
+
+					glActiveTexture(GL_TEXTURE2);
+					GLint locspec = glGetUniformLocation(forwardRenderProgram.handle, "uSpecularMap");
+					glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.specularTextureIdx].handle);
+					glUniform1i(locspec, 2);
+				}
+
 
 				GLint locproj = glGetUniformLocation(forwardRenderProgram.handle, "cameraProj");
 				glUniformMatrix4fv(locproj,1,GL_FALSE, glm::value_ptr(app->camera.projection));
@@ -1450,6 +1466,23 @@ void Render(App* app)
 					glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.bumpTextureIdx].handle);
 					glUniform1i(locdepth, 2);
 
+				}
+
+
+				if (submeshMaterial.specularTextureIdx == 0)
+				{
+					GLint loc = glGetUniformLocation(texturedMeshProgram.handle, "specularMapExists");
+					glUniform1i(loc, 0);
+				}
+				else
+				{
+					GLint loc = glGetUniformLocation(texturedMeshProgram.handle, "specularMapExists");
+					glUniform1i(loc, 1);
+
+					glActiveTexture(GL_TEXTURE2);
+					GLint locspec = glGetUniformLocation(texturedMeshProgram.handle, "uSpecularMap");
+					glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.specularTextureIdx].handle);
+					glUniform1i(locspec, 2);
 				}
 
 				GLint loc = glGetUniformLocation(texturedMeshProgram.handle, "specular");
