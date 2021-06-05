@@ -300,9 +300,9 @@ void Init(App* app)
 	ChangeRot(&app->models[pat2], 0, -90, 0);
 	RecalculateMatrix(&app->models[pat2]);
 
-	/*int floor = LoadModel(app, "StoneFloor/StoneFloor.obj");
+	int floor = LoadModel(app, "StoneFloor/StoneFloor.obj");
 	ChangeScl(&app->models[floor],0.5, 0.5, 0.5);
-	RecalculateMatrix(&app->models[floor]);*/
+	RecalculateMatrix(&app->models[floor]);
 
 	int toy = LoadModel(app, "TOYBOX/ToyBox.obj");
 	ChangePos(&app->models[toy], 0, 1, 0);

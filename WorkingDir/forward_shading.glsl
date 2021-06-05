@@ -157,10 +157,6 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 	//newpos = normview*d*2.0;
 	newpos = normview*d*depthStrength*40;
 
-
-	depthmodifier = length(newpos);
-	depthmodifier = 0.01;
-
 	return finalTexCoords;
 
 	//return P;
@@ -192,10 +188,15 @@ layout (depth_any) out float gl_FragDepth;
 void main()
 {
 
-
+/*
 	vec3 T = normalize(FSIn.tangentLocalspace);
 	vec3 B = normalize(FSIn.bitangentLocalspace);
 	vec3 N = normalize(FSIn.normalLocalspace);
+	mat3 TBN = mat3(T,B,N);
+*/
+	vec3 T = normalize(vec3(uWorldMatrix*vec4(FSIn.tangentLocalspace,0.0)));
+	vec3 B = normalize(vec3(uWorldMatrix*vec4(FSIn.bitangentLocalspace,0.0)));
+	vec3 N = normalize(vec3(uWorldMatrix*vec4(FSIn.normalLocalspace,0.0)));
 	mat3 TBN = mat3(T,B,N);
 
 	vec3 viewDir = normalize(uCameraPosition-vPosition);
