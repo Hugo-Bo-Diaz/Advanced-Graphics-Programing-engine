@@ -11,9 +11,20 @@ Clicking on any of these would open the material properties that affect that sub
 
 //show textures
 
-This engine was developed from the base engine provided for the subject by me in order to be able to apply some of the techniques that were explained in class. Some of these techniques are:
+**CONTROLS**
 
-* Deferred shading:
+- Left mouse: while held on the render view it allows for the user to change the camera orientation
+
+- WASD: used for camera movement.
+
+- SPACE: it toggles between the regular camera and orbital camera, when it is on orbital mode it centers on (0,0,0) and allows for camera movement forward and backward.
+
+This engine was developed from the base engine provided for the subject by me in order to be able to apply some of the techniques that were explained in class. 
+Now I will review the techniques applied.
+
+## TECHNIQUES USED
+
+### Deferred shading:
 
 This is a technique for lighting that pretends to save computational power by only making lighting calculations on the fragments that will be afected by them.
 
@@ -31,7 +42,7 @@ GBuffer images:
 <img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/gbuffer_s.jpg?raw=true"  height="250">
 </p>
 
-result image
+here we have the resulting image
 
 <img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/lighting_on.jpg?raw=true"  height="500">
 
@@ -45,7 +56,7 @@ You can also control the position, color and intensity of the lights present in 
 
 The shaders files that contain this effect are ```map_calculation.glsl``` to calculate the maps for the GBuffer and ```deferred.glsl``` to calculate the lights and how they affect the scene.
 
-* Water effects:
+### Water effects:
 
 This effect attempts to simulate how water reflects and refracts as well as how it distorts both of those images, here we have a comparison of how it affects a scene to have this effect on:
 
@@ -60,7 +71,7 @@ In this case the effect can only be turned off or on using this checkbox on the 
 
 The shaders files that contain this effect are ```water_render.glsl``` to calculate the reflection and refraction maps and ```water_plane.glsl``` to actually shade the plane using the previously calculated maps.
 
-* Normal maps:
+### Normal maps:
 
 This technique attempts to simulate depth on an object by changing the surface normals, allowing light and other effects to create detail without rendering additional geometry.
 
@@ -70,18 +81,31 @@ Here we have an example:
 <img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/normals_on.jpg?raw=true"  height="350">
 </p>
 
-In this engine you 
+In this engine you can use the afromentioned interface in order to change how much is the normal map going to affect the normals, the higher the number the more the normals will change according to the texture
 
-show bumpiness dragfloat
+<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/normals_widget.jpg?raw=true"  height="350">
 
-forward_shading.glsl
-map_calculation.glsl
+This technique is allocated on the normal calculation that we can find in the files of ```forward_shading.glsl``` and ```map_calculation.glsl```
 
-* Height/bump maps:
+### Height/bump maps:
 
-comparison on/off
+This technique focuses on creating a depth illusion by changing the position of the pixels when deciding its coordinates, it does it by applying some transformations according to a bump map. It is normally combined with a normal map in order to apply lighting calculations correctly onto the scene.
 
-show bumpiness dragfloat
+Here we have the three step process of applying these maps in our engine, we first apply the normals and then the bump map:
 
-forward_shading.glsl
-map_calculation.glsl
+<p float="left">
+<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_off.jpg?raw=true"  height="200">
+<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_normals.jpg?raw=true"  height="200">
+<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_on.jpg?raw=true"  height="200">
+</p>
+
+
+Just like the normal maps, you can change how much these calculations affect the result with the sliders mentioned previously on top of the texture showcased on the materials properties
+
+<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bump_widget.jpg?raw=true"  height="350">
+
+Finally the application of this technique also means that the interaction of the surface with the surrounding objects should also change according to this new depth value added, we can find it here implemented on the engine
+
+<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_showdepth.jpg?raw=true"  height="350">
+
+The calculations performed here are also part of the ```forward_shading.glsl``` and ```map_calculation.glsl``` shaders, because of the same reasons as the normal maps.
