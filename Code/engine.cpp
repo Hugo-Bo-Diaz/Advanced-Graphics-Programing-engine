@@ -286,22 +286,23 @@ void Init(App* app)
 
 	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &app->maxUniformBufferSize);
 	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &app->uniformBlockAlignment);
-	/*
+	
 	int pat1 = LoadModel(app, "Patrick/Patrick.obj");
 	//app->models[pat1].world = TransformPosition(glm::vec3(2, 0,-1))*TransformScale(glm::vec3(0.45));
-	ChangePos(&app->models[pat1], 2, 0, -1);
+	ChangePos(&app->models[pat1], 2, 1.5, -1);
 	ChangeScl(&app->models[pat1], 0.45, 0.45, 0.45);
 	ChangeRot(&app->models[pat1], 0, -90, 0);
-	RecalculateMatrix(&app->models[pat1]);*/
+	RecalculateMatrix(&app->models[pat1]);
 	
 	int pat2 = LoadModel(app, "Patrick/Patrick.obj");
-	ChangePos(&app->models[pat2], -1, 0, 2);
+	ChangePos(&app->models[pat2], -1, 2, 2);
 	ChangeScl(&app->models[pat2], 0.45, 0.45, 0.45);
-	ChangeRot(&app->models[pat2], 0, -90, 0);
+	ChangeRot(&app->models[pat2], 0, 0, 0);
 	RecalculateMatrix(&app->models[pat2]);
 
 	int floor = LoadModel(app, "StoneFloor/StoneFloor.obj");
 	ChangeScl(&app->models[floor],0.5, 0.5, 0.5);
+	ChangePos(&app->models[floor], 0, -0.5, 0);
 	RecalculateMatrix(&app->models[floor]);
 
 	int toy = LoadModel(app, "TOYBOX/ToyBox.obj");
@@ -398,7 +399,8 @@ void Init(App* app)
 	AddLight(LightType_Point, { 1,1,0 }, { 0,1,0 }, { 6,0,-5 }, app);
 	
 
-
+	app->camera.position = vec3(5.0);
+	app->camera.target = vec3(0.0);
 
 	app->camera.ortho = glm::ortho(0.f, 400.f, 0.f, 400.f, -1.f, 1.f);
 	app->camera.projection = glm::perspective(glm::radians(60.0f), app->aspectRatio, app->camera.znear, app->camera.zfar);
@@ -411,8 +413,7 @@ void Init(App* app)
     // - programs (and retrieve uniform indices)
     // - textures
 
-    app->mode = Mode_TexturedQuad;
-	app->mode = Mode_AlbedoModel;
+	app->mode = Mode_FinalRender;
 	app->rendermode = RenderMode_Forward;
 }
 
@@ -882,6 +883,23 @@ void Update(App* app)
 	if (app->input.keys[K_SPACE] == BUTTON_PRESS)
 	{
 		app->camera.orbital = !app->camera.orbital;
+		if (app->camera.orbital)
+		{
+			app->camera.yaw = 0;
+			app->camera.pitch = 25;
+			app->camera.position = vec3(-5.0, 4.0, -0.0);
+		}
+		else
+		{
+			app->camera.yaw = 0;
+			app->camera.pitch = 0;
+			app->camera.position = vec3(-5.0, 3.0, -0.0);
+		}
+
+		app->camera.target = vec3(0.0);
+
+		vec3 direction = app->camera.target - app->camera.position;
+
 	}
 
 	if (!app->camera.orbital)

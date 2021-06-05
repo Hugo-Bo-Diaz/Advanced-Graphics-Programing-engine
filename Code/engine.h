@@ -285,7 +285,7 @@ struct App
 	int mesh = 0;
 	u32 texturedMeshProgram_uTexture;
     // Mode
-    Mode mode;
+    Mode mode = Mode_FinalRender;
 	RenderMode rendermode;
 
     // Embedded geometry (in-editor simple meshes such as
