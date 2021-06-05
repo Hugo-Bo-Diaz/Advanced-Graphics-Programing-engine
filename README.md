@@ -5,11 +5,11 @@ Before we begin I would like to talk a bit about how the properties of the objec
 
 On the top-right corner you can find a list of all of the objects, if you were to click on them it would display its transform matrix as well as another button below that opens the list of submeshes that form the object.
 
-//image
+<img src="showcase_photos/submeshes_widget.jpg?raw=true"  width="250">
 
 Clicking on any of these would open the material properties that affect that submesh, showing all of the textures as well as some sliders to change how they affect the final outcome of the texture.
 
-//show textures
+<img src="showcase_photos/textures_widget.jpg?raw=true"  width="250">
 
 **CONTROLS**
 
@@ -35,24 +35,33 @@ Then those maps are used in order to compute the lighting
 Here we have an example:
 
 GBuffer images:
-<p float="left">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/lighting_off.jpg?raw=true"  height="250">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/gbuffer_p.jpg?raw=true"  height="250">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/gubffer_n.jpg?raw=true"  height="250">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/gbuffer_s.jpg?raw=true"  height="250">
-</p>
+
+<table>
+  <tr>
+    <td>Albedo buffer</td>
+     <td>Position buffer</td>
+     <td>Normals buffer</td>
+     <td>Specular buffer</td>
+  </tr>
+  <tr>
+    <td><img src="showcase_photos/lighting_off.jpg?raw=true"  height="200"></td>
+    <td><img src="showcase_photos/gbuffer_p.jpg?raw=true"  height="200"></td>
+    <td><img src="showcase_photos/gubffer_n.jpg?raw=true"  height="200"></td>
+    <td><img src="showcase_photos/gbuffer_s.jpg?raw=true"  height="200"></td>
+  </tr>
+ </table>
 
 here we have the resulting image
 
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/lighting_on.jpg?raw=true"  height="500">
+<img src="showcase_photos/lighting_on.jpg?raw=true"  height="500">
 
 In this engine you have the posibility of selecting to render with the "normal" method, rather known as forward shading or rendering with the deferred shading method by using these buttons on the left, you can also visualize the individual textures of the GBuffer when you are rendering with the deferred shading method
 
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/deferred_widget.jpg?raw=true"  height="350">
+<img src="showcase_photos/deferred_widget.jpg?raw=true"  height="350">
 
 You can also control the position, color and intensity of the lights present in the scene by using the panel on the bottom-right corner of the window
 
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/lights_panel.jpg?raw=true"  height="350">
+<img src="showcase_photos/lights_panel.jpg?raw=true"  height="350">
 
 The shaders files that contain this effect are ```map_calculation.glsl``` to calculate the maps for the GBuffer and ```deferred.glsl``` to calculate the lights and how they affect the scene.
 
@@ -60,14 +69,21 @@ The shaders files that contain this effect are ```map_calculation.glsl``` to cal
 
 This effect attempts to simulate how water reflects and refracts as well as how it distorts both of those images, here we have a comparison of how it affects a scene to have this effect on:
 
-<p float="left">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/water_off.jpg?raw=true"  height="350">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/water_on.jpg?raw=true"  height="350">
-</p>
+<table>
+  <tr>
+    <td>Water off</td>
+    <td>Water on</td>
+  </tr>
+  <tr>
+    <td><img src="showcase_photos/water_off.jpg?raw=true"  height="300"></td>
+    <td><img src="showcase_photos/water_on.jpg?raw=true"  height="300"></td>
+  </tr>
+ </table>
+
 
 In this case the effect can only be turned off or on using this checkbox on the bottom-left corner
 
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/water_widget.jpg?raw=true"  height="350">
+<img src="showcase_photos/water_widget.jpg?raw=true"  height="350">
 
 The shaders files that contain this effect are ```water_render.glsl``` to calculate the reflection and refraction maps and ```water_plane.glsl``` to actually shade the plane using the previously calculated maps.
 
@@ -75,15 +91,21 @@ The shaders files that contain this effect are ```water_render.glsl``` to calcul
 
 This technique attempts to simulate depth on an object by changing the surface normals, allowing light and other effects to create detail without rendering additional geometry.
 
-Here we have an example:
-<p float="left">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/normals_off.jpg?raw=true"  height="350">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/normals_on.jpg?raw=true"  height="350">
-</p>
+<table>
+  <tr>
+    <td>Normal mapping off</td>
+    <td>Normal mapping on</td>
+  </tr>
+  <tr>
+    <td><img src="showcase_photos/normals_off.jpg?raw=true"  height="300"></td>
+    <td><img src="showcase_photos/normals_on.jpg?raw=true"  height="300"></td>
+  </tr>
+ </table>
+
 
 In this engine you can use the afromentioned interface in order to change how much is the normal map going to affect the normals, the higher the number the more the normals will change according to the texture
 
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/normals_widget.jpg?raw=true"  height="350">
+<img src="showcase_photos/normals_widget.jpg?raw=true"  height="350">
 
 This technique is allocated on the normal calculation that we can find in the files of ```forward_shading.glsl``` and ```map_calculation.glsl```
 
@@ -93,19 +115,25 @@ This technique focuses on creating a depth illusion by changing the position of 
 
 Here we have the three step process of applying these maps in our engine, we first apply the normals and then the bump map:
 
-<p float="left">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_off.jpg?raw=true"  height="200">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_normals.jpg?raw=true"  height="200">
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_on.jpg?raw=true"  height="200">
-</p>
-
+<table>
+  <tr>
+    <td>Basic lighting</td>
+    <td>Normal mapping on</td>
+    <td>Bump mapping on</td>
+  </tr>
+  <tr>
+    <td><img src="showcase_photos/bumpmap_off.jpg?raw=true"  height="225"></td>
+    <td><img src="showcase_photos/bumpmap_normals.jpg?raw=true"  height="225"></td>
+    <td><img src="showcase_photos/bumpmap_on.jpg?raw=true"  height="225"></td>
+  </tr>
+ </table>
 
 Just like the normal maps, you can change how much these calculations affect the result with the sliders mentioned previously on top of the texture showcased on the materials properties
 
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bump_widget.jpg?raw=true"  height="350">
+<img src="showcase_photos/bump_widget.jpg?raw=true"  height="350">
 
 Finally the application of this technique also means that the interaction of the surface with the surrounding objects should also change according to this new depth value added, we can find it here implemented on the engine
 
-<img src="https://github.com/Hugo-Bo-Diaz/Advanced-Graphics-Programing-engine/blob/main/showcase_photos/bumpmap_showdepth.jpg?raw=true"  height="350">
+<img src="showcase_photos/bumpmap_showdepth.jpg?raw=true"  height="350">
 
 The calculations performed here are also part of the ```forward_shading.glsl``` and ```map_calculation.glsl``` shaders, because of the same reasons as the normal maps.
