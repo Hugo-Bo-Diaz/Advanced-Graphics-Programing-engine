@@ -155,7 +155,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\ThirdParty\glfw\include;$(ProjectDir)\ThirdParty\glad\include;$(ProjectDir)\ThirdParty\glm\include;$(ProjectDir)\ThirdParty\imgui-docking;$(ProjectDir)\ThirdParty\stb;$(ProjectDir)\ThirdParty\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\ThirdParty\Assimp\include;$(ProjectDir)\ThirdParty\stb;$(ProjectDir)\ThirdParty\imgui-docking;$(ProjectDir)\ThirdParty\glfw\include;$(ProjectDir)\ThirdParty\glad\include;$(ProjectDir)\ThirdParty\glm\include;$(ProjectDir)\ThirdParty\imgui-docking;$(ProjectDir)\ThirdParty\stb;$(ProjectDir)\ThirdParty\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -172,7 +172,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\ThirdParty\glfw\include;$(ProjectDir)\ThirdParty\glad\include;$(ProjectDir)\ThirdParty\glm\include;C:\Users\jdiaz\Projects\AGP\Engine\ThirdParty\imgui-docking;C:\Users\jdiaz\Projects\AGP\Engine\ThirdParty\stb;C:\Users\jdiaz\Projects\AGP\Engine\ThirdParty\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\ThirdParty\Assimp\include;$(ProjectDir)\ThirdParty\stb;$(ProjectDir)\ThirdParty\imgui-docking;$(ProjectDir)\ThirdParty\glfw\include;$(ProjectDir)\ThirdParty\glad\include;$(ProjectDir)\ThirdParty\glm\include;C:\Users\jdiaz\Projects\AGP\Engine\ThirdParty\imgui-docking;C:\Users\jdiaz\Projects\AGP\Engine\ThirdParty\stb;C:\Users\jdiaz\Projects\AGP\Engine\ThirdParty\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

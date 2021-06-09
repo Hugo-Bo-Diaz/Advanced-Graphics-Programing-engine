@@ -21,7 +21,6 @@ void main()
 	VSOut.positionViewspace = vec3(uWorldViewMatrix * vec4(aPosition,1.0));
 	VSOut.normalViewspace = vec3(uWorldViewMatrix * vec4(aNormal,0.0));
 
-	//gl_Position = uProjectionMatrix * vec4(VSOut.positionViewspace,1.0);
 	gl_Position = uProjectionMatrix * uWorldViewMatrix * vec4(aPosition,1.0);
 }
 
@@ -82,11 +81,6 @@ void main()
 	vec2 inverseRefrTexCoord = texCoord + distorsion*0.1;
 	vec3 inverserefractionColor = texture(reflectionMap,inverseRefrTexCoord).rgb;
 
-	//if(inversefractionColor-refractionColor > vec3(0.1))
-	{
-		//refractionColor;
-	}
-
 	float distortedGroundDepth = texture(refractionDepth, refractionTexCoord).x;
 	vec3 distortedGroundPosViewspace = reconstructPixelPosition(distortedGroundDepth);
 	float distortedWaterDepth = FSIn.positionViewspace.z - distortedGroundPosViewspace.z;
@@ -97,8 +91,7 @@ void main()
 	vec3 FO = vec3(0.1);
 	vec3 F = fresnelSchlick(max(0.0, dot(V,N)),FO);
 	oColor.rgb = mix(refractionColor,reflectionColor ,F);
-	//oColor.rg = distorsion;
-	//oColor.rgb = reflectionColor;//texture(reflectionMap,reflectionTexCoord);
+
 	oColor.a = 1.0;
 	if(isDeferred == 1)
 	{

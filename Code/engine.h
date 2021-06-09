@@ -173,6 +173,7 @@ enum Mode//WHAT IS SHOWN
 	Mode_FinalRender,
 	Mode_Deferred,
 
+	//these two were used for easy debugging of the water effects
 	Mode_ReflectionWater,
 	Mode_RefractionWater,
 
@@ -385,7 +386,6 @@ struct App
 };
 
 void Init(App* app);
-void LoadMesh(App* app, const char* path);
 
 u32 LoadTexture2D(App* app, const char* filepath);
 Image LoadImage(const char* filename);

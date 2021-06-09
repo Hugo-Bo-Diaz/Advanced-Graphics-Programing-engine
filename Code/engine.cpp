@@ -176,9 +176,7 @@ GLuint CreateTexture2DFromImage(Image image)
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size.x, image.size.y, 0, dataFormat, dataType, image.pixels);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//I made it so that GL_REPEAT is the default result instead of clamping to edge
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -216,6 +214,14 @@ u32 LoadTexture2D(App* app, const char* filepath)
 
 void Init(App* app)
 {
+
+	// TODO: Initialize your resources here!
+	// - vertex buffers
+	// - element/index buffers
+	// - vaos
+	// - programs (and retrieve uniform indices)
+	// - textures
+
 	app->OpenGLinfo = new info();
 
 	app->OpenGLinfo->OpenGLversion = (char*)glGetString(GL_VERSION);
@@ -240,13 +246,6 @@ void Init(App* app)
 		glm::vec3 pos;
 		glm::vec2 uv;
 	};
-	/*
-	const VertexV3V2 vertices[] = {
-	{ glm::vec3(-0.5,-0.5,0.0), glm::vec2(0.0,0.0) },
-	{ glm::vec3(0.5,-0.5,0.0), glm::vec2(1.0,0.0) },
-	{ glm::vec3(0.5,0.5,0.0), glm::vec2(1.0,1.0) },
-	{ glm::vec3(-0.5,0.5,0.0), glm::vec2(0.0,1.0) }
-	};*/
 
 	const VertexV3V2 vertices[] = {
 	{ glm::vec3(-1,-1,0.0), glm::vec2(0.0,0.0) },
@@ -281,14 +280,12 @@ void Init(App* app)
 	
 	AddSphere(app);
 	AddWaterPlane(app);
-
 	GenerateBuffers(app);
 
 	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &app->maxUniformBufferSize);
 	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &app->uniformBlockAlignment);
 	
 	int pat1 = LoadModel(app, "Patrick/Patrick.obj");
-	//app->models[pat1].world = TransformPosition(glm::vec3(2, 0,-1))*TransformScale(glm::vec3(0.45));
 	ChangePos(&app->models[pat1], 2, 1.5, -1);
 	ChangeScl(&app->models[pat1], 0.45, 0.45, 0.45);
 	ChangeRot(&app->models[pat1], 0, -90, 0);
@@ -308,13 +305,7 @@ void Init(App* app)
 	int toy = LoadModel(app, "TOYBOX/ToyBox.obj");
 	ChangePos(&app->models[toy], 0, 1, 0);
 	ChangeScl(&app->models[toy], 0.2, 0.2, 0.2);
-	RecalculateMatrix(&app->models[toy]);
-	/*app->texturedGeometryProgramIdx = LoadProgram(app, "shaders.glsl", "TEXTURED_GEOMETRY");
-	
-	Program& texturedGeometryProgram = app->programs[app->texturedGeometryProgramIdx];
-	*/
-	//app->programUniformTexture = glGetUniformLocation(.handle, "uTexture");
-	
+	RecalculateMatrix(&app->models[toy]);	
 
 	glGenBuffers(1, &app->bufferHandle);
 	glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
@@ -366,8 +357,6 @@ void Init(App* app)
 	mapCalculationProgramIdx.vertexInputLayout.attributes.push_back({ 1,3 });
 	mapCalculationProgramIdx.vertexInputLayout.attributes.push_back({ 3,3 });
 	mapCalculationProgramIdx.vertexInputLayout.attributes.push_back({ 4,3 });
-	//GLuint KlLocforward = glGetUniformLocation(texturedMeshProgramIdx.handle,"Kl");
-	//GLuint KqLocforward = glGetUniformLocation(texturedMeshProgramIdx.handle, "Kq");
 
 	app->deferredRenderProgramIdx = LoadProgram(app, "deferred.glsl", "DEFERRED_SHADING_RENDER");
 	Program& deferredRenderProgramIdx = app->programs[app->deferredRenderProgramIdx];
@@ -385,20 +374,13 @@ void Init(App* app)
 	app->waterPlaneProgramIdx = LoadProgram(app, "water_plane.glsl", "WATER_PLANE_RENDER_SHADER");
 	Program& waterPlaneProgramIdx = app->programs[app->waterPlaneProgramIdx];
 	waterPlaneProgramIdx.vertexInputLayout.attributes.push_back({ 0,3 });
-	//waterRenderProgramIdx.vertexInputLayout.attributes.push_back({ 2,2 });
 	waterPlaneProgramIdx.vertexInputLayout.attributes.push_back({ 1,3 });
 
-	//GLuint KlLocdeferred = glGetUniformLocation(deferredRenderProgramIdx.handle, "Kl");
-	//GLuint KqLocdeferred = glGetUniformLocation(deferredRenderProgramIdx.handle, "Kq");
-
 	AddLight(LightType_Ambient, { 1,1,1 }, { 0,1,0 }, { 0,0,0 }, app);
-
 	AddLight(LightType_Directional, { 1,1,1 }, { 0,1,0 }, { 0,0,-7 }, app);
-
 	AddLight(LightType_Point, { 1,0,1 }, { 0,1,0 }, { -6,0,-5 }, app);
 	AddLight(LightType_Point, { 1,1,0 }, { 0,1,0 }, { 6,0,-5 }, app);
 	
-
 	app->camera.position = vec3(5.0);
 	app->camera.target = vec3(0.0);
 
@@ -406,27 +388,8 @@ void Init(App* app)
 	app->camera.projection = glm::perspective(glm::radians(60.0f), app->aspectRatio, app->camera.znear, app->camera.zfar);
 	app->camera.view = glm::lookAt(app->camera.position, app->camera.target, app->upVector);
 
-	// TODO: Initialize your resources here!
-    // - vertex buffers
-    // - element/index buffers
-    // - vaos
-    // - programs (and retrieve uniform indices)
-    // - textures
-
 	app->mode = Mode_FinalRender;
 	app->rendermode = RenderMode_Forward;
-}
-
-void LoadMesh(App * app, const char* path)
-{
-
-	/*Mesh mesh = {};
-
-	VertexBufferLayout vertexBufferLayout = {};
-	vertexBufferLayout.attributes.push_back(VertexBufferAttribute{ 0,3,0 });
-	vertexBufferLayout.attributes.push_back(VertexBufferAttribute{ 2,2,3 * sizeof(float) });
-	vertexBufferLayout.stride = 5 * sizeof(float);
-	*/
 }
 
 void Gui(App* app)
@@ -461,12 +424,6 @@ void Gui(App* app)
 		break;
 	case Mode_FinalRender:
 		curr_mode += "Final";
-		break;
-	case Mode_ReflectionWater:
-		curr_mode += "Reflection";
-		break;
-	case Mode_RefractionWater:
-		curr_mode += "Refraction";
 		break;
 	default:
 		curr_mode += "unknown";
@@ -509,10 +466,6 @@ void Gui(App* app)
 			}
 		}
 	}
-
-
-
-
 	ImGui::End();
 
 
@@ -522,6 +475,7 @@ void Gui(App* app)
 
 	ImGui::End();
 
+	
 	ImGui::Begin("RENDER");
 	glBindFramebuffer(GL_FRAMEBUFFER, app->frameBufferHandle);
 
@@ -572,18 +526,17 @@ void Gui(App* app)
 		app->prevwinx = app->displaySize.x;
 		app->prevwiny = app->displaySize.y;
 	}
-	//ImGui::GetWindowDrawList()->AddImage(
-	//	(void*)app->colorAttachmentHandle,
-	//	ImGui::GetWindowPos(),
-	//	ImGui::GetWindowPos()+Im,
-	//		200 + 400), ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
+
 
 	OpenGLWindowData(app);
 
+
 	ModelWindowGUI(app);
 
+
 	LightWindowGUI(app);
+
 }
 
 void OpenGLWindowData(App* app)
@@ -653,7 +606,6 @@ void ModelWindowGUI(App * app)
 				{
 					ImGui::PushID(j);
 
-					//Imgui collapsing header  with name :)
 					ImGui::Text(mesh.submeshes[j].name.c_str());
 
 					int imagessize = 150;
@@ -736,9 +688,6 @@ void LightWindowGUI(App * app)
 				{
 					ImGui::Text("Ambient light");
 					ImGui::ColorEdit3("color", &light.color[0], ImGuiColorEditFlags_Uint8);
-
-					ImGui::DragFloat("Kl", &light.Klinear, 0.005, 0.0014, 0.7);
-					ImGui::DragFloat("Kq", &light.Kquadratic, 0.005, 0.0007, 1.8);
 				}
 				break;
 				case LightType_Directional:
@@ -746,9 +695,6 @@ void LightWindowGUI(App * app)
 					ImGui::Text("Directional light");
 					ImGui::DragFloat3("direction", &light.direction[0], 0.05, 0, 1);
 					ImGui::ColorEdit3("color", &light.color[0], ImGuiColorEditFlags_Uint8);
-
-					ImGui::DragFloat("Kl", &light.Klinear, 0.005, 0.0014, 0.7);
-					ImGui::DragFloat("Kq", &light.Kquadratic, 0.005, 0.0007, 1.8);
 				}
 					break;
 				case LightType_Point:
@@ -772,29 +718,7 @@ void LightWindowGUI(App * app)
 void Update(App* app)
 {
     // You can handle app->input keyboard/mouse here
-	/*
-	glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
 
-	u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-	u32 bufferHead = 0;
-	for (int i = 0; i < app->models.size(); ++i)
-	{
-		bufferHead = Align(bufferHead, app->uniformBlockAlignment);
-
-		app->models[i].localParamsOffset = bufferHead;
-
-		memcpy(bufferData + bufferHead, glm::value_ptr(app->models[i].world), sizeof(glm::mat4));
-		bufferHead += sizeof(glm::mat4);
-
-		memcpy(bufferData + bufferHead, glm::value_ptr(app->worldViewProjection), sizeof(glm::mat4));
-		bufferHead += sizeof(glm::mat4);
-
-		app->models[i].localParamsSize = bufferHead - app->models[i].localParamsOffset;
-
-	}
-	glUnmapBuffer(GL_UNIFORM_BUFFER);
-	glBindBuffer(GL_UNIFORM_BUFFER,0);
-	*/
 	glBindBuffer(GL_UNIFORM_BUFFER, app->LocalAttBuffer.handle);
 	MapBuffer(app->LocalAttBuffer, GL_WRITE_ONLY);
 	app->LocalParamsOffset = app->LocalAttBuffer.head;
@@ -842,10 +766,10 @@ void Update(App* app)
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
-
 	glBindBuffer(GL_UNIFORM_BUFFER, app->LightTransformBuffer.handle);
 	MapBuffer(app->LightTransformBuffer, GL_WRITE_ONLY);
-	//handle lights
+	
+	//handle lights transforms
 	app->LightTransformParamsOffset = app->LightTransformBuffer.head;
 
 	AlignHead(app->LightTransformBuffer, app->uniformBlockAlignment);
@@ -855,11 +779,12 @@ void Update(App* app)
 	app->LightTransformParamsSize = app->LightTransformBuffer.head - app->LightTransformParamsOffset;
 	UnmapBuffer(app->LightTransformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-
+	
+	
 	glBindBuffer(GL_UNIFORM_BUFFER, app->LightParamsBuffer.handle);
 	MapBuffer(app->LightParamsBuffer, GL_WRITE_ONLY);
-	//handle lights
+	
+	//handle light constants
 	app->LightParamsParamsOffset = app->LightParamsBuffer.head;
 
 	for (u32 i = 0; i < app->lights.size(); ++i)
@@ -874,12 +799,7 @@ void Update(App* app)
 	UnmapBuffer(app->LightParamsBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
-	//app->camera.position = vec3(0, 0, 0);
-	//app->camera.target = vec3(0, 0, -1);
-	//app->camera.target.x = glm::cos(glm::radians(app->angle));
-	//app->camera.target.z = glm::sin(glm::radians(app->angle));
-
+	//camera controls
 	if (app->input.keys[K_SPACE] == BUTTON_PRESS)
 	{
 		app->camera.orbital = !app->camera.orbital;
@@ -1213,8 +1133,7 @@ void Render(App* app)
 
 	if (app->render_water)
 	{
-		// :)
-
+		//RENDER BOTH WATER REFLECTION AND REFRACTION BUFFERS
 		glCullFace(GL_BACK);
 
 		glEnable(GL_DEPTH_TEST);
@@ -1222,13 +1141,10 @@ void Render(App* app)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthMask(true);
 
-		//fill buffer?
 		float aspectRatio = (float)app->displaySize.x / (float)app->displaySize.y;
-
 
 		//reflection///////////////////////////////////////////
 		glBindFramebuffer(GL_FRAMEBUFFER, app->ReflectionframeBuffer);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Camera reflectionCamera = app->camera;
 		reflectionCamera.position.y = -reflectionCamera.position.y;
@@ -1245,9 +1161,6 @@ void Render(App* app)
 		reflectionCamera.cameraFront = glm::normalize(reflectionCamera.direction);
 		reflectionCamera.target = reflectionCamera.position + reflectionCamera.cameraFront;
 
-		//reflectionCamera.direction.y = glm::sin(glm::radians(app->camera.pitch));
-		//reflectionCamera.target = glm::normalize(reflectionCamera.direction) + reflectionCamera.position;
-
 		reflectionCamera.view = glm::lookAt(reflectionCamera.position, reflectionCamera.target, app->upVector);
 
 		glm::mat4 refl = reflectionCamera.projection* app->world*reflectionCamera.view;
@@ -1259,7 +1172,6 @@ void Render(App* app)
 
 		//refraction////////////////////////////////////////
 		glBindFramebuffer(GL_FRAMEBUFFER, app->RefractionframeBuffer);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Camera refractionCamera = app->camera;
 
@@ -1270,12 +1182,10 @@ void Render(App* app)
 
 		glm::mat4 refr = refractionCamera.projection* app->world*refractionCamera.view;
 
-		//passwater :D
-
-
 		refractionCamera.projection = glm::perspective(glm::radians(60.0f), app->aspectRatio, refractionCamera.znear, refractionCamera.zfar);
 		refractionCamera.view = glm::lookAt(refractionCamera.position, refractionCamera.target, app->upVector);
 
+		//passwater :D
 		passWaterScene(&refractionCamera, GL_COLOR_ATTACHMENT0, false, app);
 
 
@@ -1295,15 +1205,13 @@ void Render(App* app)
 	switch (app->rendermode)
 	{
 		case RenderMode_Forward:
-			//use normal render
+		//use normal render
 		glBindFramebuffer(GL_FRAMEBUFFER, app->frameBufferHandle);
 
 		//glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, app->displaySize.x, app->displaySize.y);
 
-		//GLuint drawBuffers[] = { app->colorAttachmentHandle,app->normalAttachmentHandle,app->finalAttachmentHandle };
-				
 		glDrawBuffers(ARRAY_COUNT(drawBuffersforward), drawBuffersforward);
 
 		glEnable(GL_BLEND);
@@ -1328,7 +1236,7 @@ void Render(App* app)
 				glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.albedoTextureIdx].handle);
 				glUniform1i(app->texturedMeshProgram_uTexture, 0);
 				
-				//DO SAME FOR SPECULAR
+				//send normal map if it exists
 				if (submeshMaterial.normalsTextureIdx == 0)
 				{
 					GLint loc = glGetUniformLocation(forwardRenderProgram.handle, "normalMapExists");
@@ -1348,6 +1256,7 @@ void Render(App* app)
 					glUniform1i(locnormals, 1);
 				}
 
+				//send bump map if it exists
 				if (submeshMaterial.bumpTextureIdx == 0)
 				{
 					GLint loc = glGetUniformLocation(forwardRenderProgram.handle, "depthMapExists");
@@ -1367,6 +1276,7 @@ void Render(App* app)
 					glUniform1i(locdepth, 2);
 				}
 
+				//send specular texture if it exists
 				if (submeshMaterial.specularTextureIdx == 0)
 				{
 					GLint loc = glGetUniformLocation(forwardRenderProgram.handle, "specularMapExists");
@@ -1390,8 +1300,6 @@ void Render(App* app)
 				GLint loc = glGetUniformLocation(forwardRenderProgram.handle, "specular");
 				glUniform1f(loc, submeshMaterial.specular);
 
-				//send texture for specular as well with a bool to know if the shader should use it :)
-
 				u32 blockOffset = app->LocalParamsOffset +model.localParamsOffset;
 				u32 blockSize = app->LocalAttBuffer.size;
 				glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->LocalAttBuffer.handle, blockOffset, blockSize);
@@ -1411,24 +1319,20 @@ void Render(App* app)
 		}
 		break;
 	case RenderMode_Deferred:
-	{		//use deferred render
+	{		
+		//use deferred render
 
-
+		//STEP 1: G BUFFER CREATION//////////////////////
 		glBindFramebuffer(GL_FRAMEBUFFER, app->frameBufferHandle);
 
-		//glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glViewport(0, 0, app->displaySize.x, app->displaySize.y);
 
-		//GLuint drawBuffers[] = { app->colorAttachmentHandle,app->normalAttachmentHandle,app->finalAttachmentHandle };
-
 		GLuint drawBuffers[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1,GL_COLOR_ATTACHMENT2 ,GL_COLOR_ATTACHMENT3 };
 		glDrawBuffers(ARRAY_COUNT(drawBuffers), drawBuffers);
-
-
 
 		Program& texturedMeshProgram = app->programs[app->mapCalculationProgramIdx];
 		glUseProgram(texturedMeshProgram.handle);
@@ -1450,6 +1354,7 @@ void Render(App* app)
 				glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.albedoTextureIdx].handle);
 				glUniform1i(app->texturedMeshProgram_uTexture, 0);
 				
+				//send normal map if it exists
 				if (submeshMaterial.normalsTextureIdx == 0)
 				{
 					GLint loc = glGetUniformLocation(texturedMeshProgram.handle, "normalMapExists");
@@ -1466,6 +1371,7 @@ void Render(App* app)
 					glUniform1i(locnormals, 1);
 				}
 
+				//send bump map if it exists
 				if (submeshMaterial.bumpTextureIdx == 0)
 				{
 					GLint loc = glGetUniformLocation(texturedMeshProgram.handle, "depthMapExists");
@@ -1486,7 +1392,7 @@ void Render(App* app)
 
 				}
 
-
+				//send specular map if it exists
 				if (submeshMaterial.specularTextureIdx == 0)
 				{
 					GLint loc = glGetUniformLocation(texturedMeshProgram.handle, "specularMapExists");
@@ -1505,8 +1411,6 @@ void Render(App* app)
 
 				GLint loc = glGetUniformLocation(texturedMeshProgram.handle, "specular");
 				glUniform1f(loc, submeshMaterial.specular);
-
-				//send texture for specular as well with a bool to know if the shader should use it :)
 
 				u32 blockOffset = app->LocalParamsOffset + model.localParamsOffset;
 				u32 blockSize = app->LocalAttBuffer.size;
@@ -1527,7 +1431,8 @@ void Render(App* app)
 		}
 
 
-
+		//STEP 2: RENDER THE LIGHTS
+		
 		//DEFERRED :D
 		glBindFramebuffer(GL_FRAMEBUFFER, app->deferredBufferHandle);
 
@@ -1542,12 +1447,6 @@ void Render(App* app)
 
 		// - bind the program 
 		glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glBlendEquation(GL_FUNC_ADD);
-		//glDepthFunc(GL_EQUAL);
-
-		//   (...and make its texture sample from unit 0)
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, app->colorAttachmentHandle);
@@ -1570,8 +1469,6 @@ void Render(App* app)
 		glUniform1i(loc3, 3);
 
 
-
-
 		for (int i = 0; i < app->lights.size(); ++i)
 		{
 			glm::mat4 world = TransformPosition(vec3(0));
@@ -1583,19 +1480,13 @@ void Render(App* app)
 			{
 				case LightType_Directional:
 				{
-					//bind mainsquare :D
-					//world = TransformPosition(vec3(0, 0.5, -3));
-					//app->lightworld = app->camera.projection * app->camera.view * world;
-
+					//bind square that covers the whole screen
 					glBindVertexArray(app->vao);
 					glBlendFunc(GL_ONE, GL_ONE);
-
-
 				}
 				break;
 				case LightType_Point:
 				{
-
 					Light& light = app->lights[i];
 					const float maxBrightness = std::fmaxf(std::fmaxf(light.color.r, light.color.g), light.color.b);
 					float spheresize = (-light.Klinear + std::sqrt(light.Klinear * light.Klinear - 4 * light.Kquadratic * (light.Kconstant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * light.Kquadratic);
@@ -1608,15 +1499,15 @@ void Render(App* app)
 
 					glDisable(GL_DEPTH_TEST);
 					glDisable(GL_CULL_FACE);
-					//glFrontFace(GL_CW);
 					glBlendFunc(GL_ONE, GL_ONE);
 
+					//bind the sphere geometry
 					glBindVertexArray(app->spherevao);
-
 				}
 				break;
 				case LightType_Ambient:
 				{
+					//bind square that covers the whole screen
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 					glBindVertexArray(app->vao);
 				}
@@ -1625,9 +1516,11 @@ void Render(App* app)
 					break;
 			}
 
+			//SET ALL UNIFORM VALUES FOR THE LIGHTS RENDERING
+
 			glBindBuffer(GL_UNIFORM_BUFFER, app->LightTransformBuffer.handle);
 			MapBuffer(app->LightTransformBuffer, GL_WRITE_ONLY);
-			//handle lights
+
 			app->LightTransformParamsOffset = app->LightTransformBuffer.head;
 
 			AlignHead(app->LightTransformBuffer, app->uniformBlockAlignment);
@@ -1638,11 +1531,9 @@ void Render(App* app)
 			UnmapBuffer(app->LightTransformBuffer);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
 			u32 lightblockOffset = app->LightTransformParamsOffset;
 			u32 lightblockSize = app->LightTransformBuffer.size;
 			glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(2), app->LightTransformBuffer.handle, lightblockOffset, lightblockSize);
-
 
 			u32 globalblockOffset = app->globalParamsOffset;
 			u32 globalblockSize = app->cbuffer.size;
@@ -1653,14 +1544,8 @@ void Render(App* app)
 			glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(3), app->LightParamsBuffer.handle, lightparblockOffset, lightparblockSize);
 
 
-			//GLuint modelLoc = glGetUniformLocation(deferredRenderProgramIdx.handle, "model");
-			//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &worldViewProjection[0][0]);
-
 			GLint loc4 = glGetUniformLocation(deferredRenderProgramIdx.handle, "current_light");
 			glUniform1i(loc4, i);
-
-			//glUniform1f(app->KlLocdeferred, app->lights[i].Klinear);
-			//glUniform1f(app->KqLocdeferred, app->lights[i].Kquadratic);
 
 			glDrawElements(GL_TRIANGLES, vertextodraw, GL_UNSIGNED_SHORT, 0);
 
@@ -1670,16 +1555,16 @@ void Render(App* app)
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER,0);
 
-if(app->render_water)
-{
+	if(app->render_water)
+	{
+		//RENDER THE WATER PLANE
+
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_CULL_FACE);
 		//glBlendEquation(GL_FUNC_ADD);
 
 		if (app->rendermode == RenderMode_Deferred)
 		{
-
-
 
 			glBindFramebuffer(GL_FRAMEBUFFER, app->deferredBufferHandle);
 
@@ -1769,17 +1654,13 @@ if(app->render_water)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	/*1
-}
-break;
-        default:;
-    }*/
 }
 
 
 
 void passWaterScene(Camera * cam, GLenum colorAttachment, bool reflection, App* app)
 {
+	//FUNCTION TO RENDER EITHER REFLECTION OR REFRACTION (is called two times in a frame)
 	glDrawBuffer(colorAttachment);
 
 	glEnable(GL_DEPTH_TEST);
@@ -1790,9 +1671,6 @@ void passWaterScene(Camera * cam, GLenum colorAttachment, bool reflection, App* 
 
 	Program& programWaterRender = app->programs[app->waterRenderProgramIdx];
 	glUseProgram(programWaterRender.handle);
-
-	//glm::mat4 view = cam->view;
-	//set uniforms of camera matrices
 
 	if (reflection)
 	{
@@ -1827,19 +1705,11 @@ void passWaterScene(Camera * cam, GLenum colorAttachment, bool reflection, App* 
 			glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.albedoTextureIdx].handle);
 			glUniform1i(app->texturedMeshProgram_uTexture, 0);
 
-			//send texture for specular as well with a bool to know if the shader should use it :)
-
-			//calculate matrices and send them as uniform
-
 			glm::mat4 world = model.world;
 			glm::mat4 worldViewProjection = cam->projection*cam->view* world;
 
 			glUniformMatrix4fv(locworld,1,GL_FALSE,glm::value_ptr(world));
 			glUniformMatrix4fv(locworldprojview, 1, GL_FALSE, glm::value_ptr(worldViewProjection));
-
-			//u32 blockOffset = app->LocalParamsOffset + model.localParamsOffset;
-			//u32 blockSize = app->LocalAttBuffer.size;
-			//glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->LocalAttBuffer.handle, blockOffset, blockSize);
 
 			Submesh& submesh = mesh.submeshes[j];
 			glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
@@ -1981,9 +1851,6 @@ GLuint AddWaterPlane(App * app)
 	const u16 indices[] = {
 		0,1,2,0,2,3
 	};
-	/*const u16 indices[] = {
-		2,1,0,3,2,0
-	};*/
 
 	glGenBuffers(1, &app->embeddedwaterplaneVertices);
 	glBindBuffer(GL_ARRAY_BUFFER, app->embeddedwaterplaneVertices);
@@ -2007,75 +1874,13 @@ GLuint AddWaterPlane(App * app)
 
 	return app->waterplanevao;
 }
-/*
-u32 AddPlane(App * app)
-{
-	Model newModel = {};
-	app->models.push_back(newModel);
-	u32 modelidx = app->models.size() - 1;
 
-	Mesh newMesh = {};
-	app->meshes.push_back(newMesh);
-	u32 meshidx = app->meshes.size() - 1;
-
-	newModel.meshIdx = meshidx;
-
-	Submesh newsubmesh = {};
-	newMesh.submeshes.push_back(newsubmesh);
-
-	newsubmesh.indexOffset = 0;
-	newsubmesh.indices = ;
-	newsubmesh.vao_list
-
-	struct VertexV3V3 {
-		glm::vec3 pos;
-		glm::vec3 uv;
-	};
-
-	const VertexV3V3 vertices[] = {
-		{ glm::vec3(-20,0,-20), glm::vec3(0,1,0) },
-	{ glm::vec3(20,0,-20), glm::vec3(0,1,0) },
-	{ glm::vec3(20,0,20), glm::vec3(0,1,0) },
-	{ glm::vec3(-20,0,20), glm::vec3(0,1,0) }
-	};
-
-	const u16 indices[] = {
-		0,1,2,0,2,3
-	};
-	/*const u16 indices[] = {
-	2,1,0,3,2,0
-	};*/
-/*
-	glGenBuffers(1, &app->embeddedwaterplaneVertices);
-	glBindBuffer(GL_ARRAY_BUFFER, app->embeddedwaterplaneVertices);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glGenBuffers(1, &app->embeddedwaterplaneElements);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app->embeddedwaterplaneElements);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	glGenVertexArrays(1, &app->waterplanevao);
-	glBindVertexArray(app->waterplanevao);
-	glBindBuffer(GL_ARRAY_BUFFER, app->embeddedwaterplaneVertices);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexV3V3), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexV3V3), (void*)12);
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app->embeddedwaterplaneElements);
-	glBindVertexArray(0);
-
-	return modelidx;
-}*/
 
 void RecalculateMatrix(Model * model)
 {
 	glm::quat q = glm::quat(model->rotation);
 	glm::mat4 rotm = glm::mat4(q);
 	
-	//model->world = rotm * TransformScale(model->scale)* TransformPosition(model->position);
-
 	model->world = TransformPosition(model->position)* rotm * TransformScale(model->scale);
 }
 

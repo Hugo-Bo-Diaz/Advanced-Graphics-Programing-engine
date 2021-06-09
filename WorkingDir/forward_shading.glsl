@@ -66,10 +66,6 @@ void main()
 
 	aPos = aPosition;
 
-	/*float clippingScale = 5.0;
-	gl_Position = vec4(aPosition, clippingScale);
-	gl_Position.z = -gl_Position.z;*/
-
 	gl_Position = uWorldViewProjectionMatrix * vec4(aPosition,1.0);
 }
 
@@ -110,6 +106,7 @@ uniform float depthStrength;
 uniform float normalStrength;
 vec3 newpos;
 
+//function based on the learnopengl tutorial: https://learnopengl.com/Advanced-Lighting/Parallax-Mapping
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
 
@@ -148,18 +145,14 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 	float weight = afterDepth / (afterDepth - beforeDepth);
 	vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
 
-	//texture(uDepthMap, finalTexCoords).r
-
+	//calculating the vector that will be added to the depth
 	vec3 normview = normalize(uCameraPosition - vPosition);
 
 	float d = (texture(uDepthMap, finalTexCoords).r) / (normview.y);
 
-	//newpos = normview*d*2.0;
 	newpos = normview*d*depthStrength*40;
 
 	return finalTexCoords;
-
-	//return P;
 } 
 
 layout(location = 0) out vec4 oColor;
@@ -187,13 +180,6 @@ layout (depth_any) out float gl_FragDepth;
 
 void main()
 {
-
-/*
-	vec3 T = normalize(FSIn.tangentLocalspace);
-	vec3 B = normalize(FSIn.bitangentLocalspace);
-	vec3 N = normalize(FSIn.normalLocalspace);
-	mat3 TBN = mat3(T,B,N);
-*/
 	vec3 T = normalize(vec3(uWorldMatrix*vec4(FSIn.tangentLocalspace,0.0)));
 	vec3 B = normalize(vec3(uWorldMatrix*vec4(FSIn.bitangentLocalspace,0.0)));
 	vec3 N = normalize(vec3(uWorldMatrix*vec4(FSIn.normalLocalspace,0.0)));
@@ -215,8 +201,6 @@ void main()
 		newtexCoords = vTexCoord;
 	}	
 
-	//vec3 tangentSpaceNormal = texture(uNormalMap, newtexCoords).xyz * 2.0 - vec3(1.0);
-
 	vec3 tangentSpaceNormal = texture(uNormalMap,newtexCoords).xyz;
 	tangentSpaceNormal = tangentSpaceNormal * 2.0 - 1.0;
 	tangentSpaceNormal.xy *= normalStrength;
@@ -224,9 +208,6 @@ void main()
 	vec3 localSpaceNormal = TBN*tangentSpaceNormal;
 	vec3 viewSpaceNormal = normalize(uWorldViewProjectionMatrix* vec4(localSpaceNormal,0.0)).xyz;
 	
-
-	//oColor = vec4(FSIn.tangentLocalspace,1.0f);
-
 	vec3 norm = vec3(0.0);
 	if(normalMapExists == 1)
 		norm = normalize(viewSpaceNormal);
@@ -267,13 +248,11 @@ void main()
 			color+= texture(uTexture, newtexCoords).xyz*0.1*uLight[i].color;
 		}
 
-
 		float Kconstant = 1.0;
 		float Klinear = uConstants[i].Klinear;// 0.7;
 		float Kquadratic = uConstants[i].Kquadratic;// 1.8;
 		float distance = length(uLight[i].position - vPosition);
 
-		
 		// diffuse
 		vec3 diffuse = max(dot(norm, lightDir), 0.0) * texture(uTexture, newtexCoords).xyz * uLight[i].color;
 		// specular
@@ -293,35 +272,12 @@ void main()
 			color += diffuse + specular;
 
 	};
-	
-	//float d = uCameraPosition-vPosition;
-	//gl_FragDepth = (pow(2,24) -1.0 ) * ((1000.0 + 0.1)/(2.0 * (1000.0 - 0.1) + (1.0 / gl_FragCoord.z + depthmodifier) * (-1000.0 * 0.1) / (1000.0 - 0.1) + 1/2));
-	
-	//float ndc = (gl_FragCoord.z + depthmodifier);
-	//gl_FragDepth =((1/ndc - 1/0.1) / (1/1000.0 - 1/0.1));
-
 
 	vec4 v_clip_coord = uWorldViewProjectionMatrix * vec4(aPos-newpos, 1.0);
 	float f_ndc_depth = v_clip_coord.z / v_clip_coord.w;
 	gl_FragDepth = (1.0 - 0.0) * 0.5 * f_ndc_depth + (1.0 + 0.0) * 0.5;
 
-	/*vec4 ndc = (cameraProj * vec4(vViewDir,0.0) * vec4(newpos, 0.));
-	float newdepth =ndc.z/ndc.w;
-	if(newdepth != 0.0)
-		gl_FragDepth += newdepth;*/
-
-    oColor = vec4(newpos, 1.0);
-
-	//gl_FragDepth =gl_FragCoord.z + depthmodifier;
-
-	//gl_FragDepth =(0.1*(gl_FragCoord.z + depthmodifier)+1000.0 )/ (gl_FragCoord.z + depthmodifier);
-
-	//gl_FragDepth =((gl_FragCoord.z + depthmodifier)*(far+near)+2*far*near)/(gl_FragCoord.z + depthmodifier)*(far-near);
-
 	oColor =vec4(color,1.0f);
-	//oColor =vec4(depthmodifier,0.0,0.0,1.0f);
-	//oColor =vec4(vec3(d),1.0f);
-
 }
 
 #endif

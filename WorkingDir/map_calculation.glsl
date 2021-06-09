@@ -34,12 +34,7 @@ void main()
 	vPosition = vec3( uWorldMatrix * vec4(aPosition,1.0));
 	vNormal = vec3(uWorldMatrix * vec4(aNormal,0.0));
 
-	/*float clippingScale = 5.0;
-	gl_Position = vec4(aPosition, clippingScale);
-	gl_Position.z = -gl_Position.z;*/
-
 	aPos = aPosition;
-
 
 	VSOut.tangentLocalspace = tangent;
 	VSOut.bitangentLocalspace = bitangent;
@@ -144,31 +139,25 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 	float weight = afterDepth / (afterDepth - beforeDepth);
 	vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
 
-	//texture(uDepthMap, finalTexCoords).r
-
+	//calculating the vector that will be added to the depth
 	vec3 normview = normalize(uCameraPosition - vPosition);
 
 	float d = (texture(uDepthMap, finalTexCoords).r) / (normview.y);
 
-	//newpos = normview*d*2.0;
 	newpos = normview*d*depthStrength*40;
 
-//	depthmodifier = length(newpos);
-
 	return finalTexCoords;
-
-	//return P;
 } 
 
 
 void main()
 {
 
-	vec3 T = normalize(FSIn.tangentLocalspace);
-	vec3 B = normalize(FSIn.bitangentLocalspace);
-	vec3 N = normalize(FSIn.normalLocalspace);
+	vec3 T = normalize(vec3(uWorldMatrix*vec4(FSIn.tangentLocalspace,0.0)));
+	vec3 B = normalize(vec3(uWorldMatrix*vec4(FSIn.bitangentLocalspace,0.0)));
+	vec3 N = normalize(vec3(uWorldMatrix*vec4(FSIn.normalLocalspace,0.0)));
 	mat3 TBN = mat3(T,B,N);
-	
+
 	vec3 tanvposition = vPosition*TBN;
 	vec3 tanviewposition = uCameraPosition*TBN;
 	vec3 depthViewDir = normalize(tanviewposition-tanvposition);
@@ -186,10 +175,7 @@ void main()
 	vec3 localSpaceNormal = TBN*tangentSpaceNormal;
 	vec3 viewSpaceNormal = normalize(uWorldViewProjectionMatrix* vec4(localSpaceNormal,0.0)).xyz;
 	
-
 	oColor = texture(uTexture, newtexCoords);
-	//oColor = vec4(1.0f,1.0f,1.0f,1.0f);
-
 
 	vec3 norm = vec3(0.0);
 	if(normalMapExists == 1)

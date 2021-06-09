@@ -35,8 +35,6 @@ layout(binding = 2, std140) uniform LightParams
 };
 out vec2 vTexCoord;
 
-//uniform mat4 model;
-
 uniform int current_light;
 
 void main()
@@ -90,14 +88,10 @@ void main()
 	vec3 lighting = vec3(0.0);
 	vec3 viewDir = normalize(uCameraPosition-FragPos);
 
-	//for(int i=0;i<uLightCount; ++i)
-
 	int i = current_light;
 
 	float Kconstant = 1.0;
-	//float Klinear = uConstants[i].Klinear;// 0.7;
-	//float Kquadratic = uConstants[i].Kquadratic;// 1.8;
-	float Klinear = uConstants[i].Klinear;// 0.7;
+	float Klinear = uConstants[i].Klinear;// 0.7; (default values)
 	float Kquadratic = uConstants[i].Kquadratic;// 1.8;
 	float distance = length(uLight[i].position - FragPos);
 
@@ -137,9 +131,6 @@ void main()
 		}
 	}
 
-	//oColor = vec4(uv.x,uv.y,0.0,1.0);
-	//oColor = texture(uNormal, vTexCoord);
-	//
 }
 
 #endif
